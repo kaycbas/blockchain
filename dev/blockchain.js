@@ -1,3 +1,5 @@
+const sha256 = require('sha256');
+
 class Blockchain {
     constructor() {
         this.chain = [];
@@ -35,6 +37,12 @@ class Blockchain {
 
         // return the number of the block this transaction will be included in
         return this.getLastBlock()['index'] + 1;
+    }
+
+    hashBlock(prevBlockHash, currBlockData, nonce) {
+        const dataAsStr = prevBlockHash + JSON.stringify(currBlockData) + nonce.toString();
+        const hash = sha256(dataAsStr);
+        return hash;
     }
 }
 
