@@ -12,8 +12,7 @@ const bitcoin = new Blockchain();
 // --
 
 const prevBlockHash = '4GH5KJ32LH234J12LKJ';
-const currBlockData = [
-    {
+const currBlockData = [{
         amount: 10,
         sender: 'H54JK32L243JKLJJ',
         recipient: '6VBMN345234M5NB'

@@ -23,7 +23,7 @@ class Blockchain {
 
         return newBlock;
     }
-    
+
     getLastBlock() {
         return this.chain[this.chain.length - 1];
     }
@@ -56,7 +56,7 @@ class Blockchain {
         }
 
         return nonce;
-    }    
+    }
 }
 
 module.exports = Blockchain;
