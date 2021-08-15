@@ -9,6 +9,8 @@ const bitcoin = new Blockchain();
 
 // bitcoin.creatteNewBlock(534334, '6JK5L6G5Y7VU45VB', '5N4MB7N67V8CVBN');
 
+// --
+
 const prevBlockHash = '4GH5KJ32LH234J12LKJ';
 const currBlockData = [
     {
@@ -27,8 +29,9 @@ const currBlockData = [
         recipient: '6BN5MN345234M5NB'
     },
 ];
-const nonce = 4322;
+// const nonce = 4322;
+// hash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce);
 
-hash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce)
+const nonce = bitcoin.proofOfWork(prevBlockHash, currBlockData);
 
-console.log(hash);
+console.log(nonce);

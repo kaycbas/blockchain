@@ -44,6 +44,20 @@ class Blockchain {
         const hash = sha256(dataAsStr);
         return hash;
     }
+
+    proofOfWork(prevBlockHash, currBlockData) {
+        let nonce = 0;
+        let hash = this.hashBlock(prevBlockHash, currBlockData, nonce);
+
+        while (hash.substring(0, 4) !== '0000') {
+            nonce++;
+            hash = this.hashBlock(prevBlockHash, currBlockData, nonce);
+        }
+
+        return nonce;
+        // const newBlock = this.creatteNewBlock(nonce, prevBlockHash, hash);
+        // return newBlock;
+    }    
 }
 
 module.exports = Blockchain;
