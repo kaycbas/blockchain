@@ -24,15 +24,41 @@ app.get('/blockchain', function (req, res) {
 
 // create a new transaction
 app.post('/transaction', function (req, res) {
+    const newTransaction = req.body;
+    const blockIdx = bitcoin.addTransactionToPendingTransactions(newTransaction);
+    res.json({
+        note: `Transaction will be added in block ${blockIdx}.`
+    });
+})
+
+// create and broadcast a new transaction
+app.post('/transaction/broadcast', function (req, res) {
     const {
         amount,
         sender,
         recipient
     } = req.body;
-    const blockIdx = bitcoin.createNewTransaction(amount, sender, recipient);
-    res.json({
-        note: `Transaction will be added in block ${blockIdx}.`
-    });
+    const newTransaction = bitcoin.createNewTransaction(amount, sender, recipient);
+    bitcoin.addTransactionToPendingTransactions(newTransaction);
+
+    const reqPromises = [];
+    for (const networkNodeUrl of bitcoin.networkNodes) {
+        const reqOptions = {
+            uri: networkNodeUrl + '/transaction',
+            method: 'POST',
+            body: newTransaction,
+            json: true
+        };
+
+        const reqPromise = rp(reqOptions);
+        reqPromises.push(reqPromise);
+    }
+
+    Promise.all(reqPromises).then(data => {
+        res.json({
+            note: 'Successfully created and broadcast transaction.'
+        })
+    })
 })
 
 // mine a block
@@ -90,7 +116,9 @@ app.post('/register-and-broadcast-node', function (req, res) {
 
         return rp(bulkRegOptions);
     }).then(data => {
-        res.json({ note: 'New node registered with network successfully.' });
+        res.json({
+            note: 'New node registered with network successfully.'
+        });
     })
 })
 
@@ -102,7 +130,9 @@ app.post('/register-node', function (req, res) {
     if (nodeNotAlreadyPresent && notCurrNode) {
         bitcoin.networkNodes.push(newNodeUrl);
     }
-    res.json({ note: 'New node registered successfully.' });
+    res.json({
+        note: 'New node registered successfully.'
+    });
 })
 
 // register nodes in bulk
@@ -116,7 +146,9 @@ app.post('/register-nodes-bulk', function (req, res) {
         }
     }
 
-    res.json({ note: 'Successfully bulk registered nodes.'})
+    res.json({
+        note: 'Successfully bulk registered nodes.'
+    })
 })
 
 
