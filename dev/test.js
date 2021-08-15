@@ -32,7 +32,7 @@ const currBlockData = [
 // const nonce = 4322;
 // hash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce);
 
-const nonce = bitcoin.proofOfWork(prevBlockHash, currBlockData);
-const hash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce);
+// const nonce = bitcoin.proofOfWork(prevBlockHash, currBlockData);
+// const hash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce);
 
-console.log(hash);
+console.log(bitcoin);

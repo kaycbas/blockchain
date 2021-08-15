@@ -4,9 +4,11 @@ class Blockchain {
     constructor() {
         this.chain = [];
         this.pendingTransactions = [];
+
+        this.createNewBlock(100, '0', '0');
     }
 
-    creatteNewBlock(nonce, prevBlockHash, hash) {
+    createNewBlock(nonce, prevBlockHash, hash) {
         const newBlock = {
             index: this.chain.length + 1,
             timestamp: Date.now(),
@@ -35,7 +37,6 @@ class Blockchain {
 
         this.pendingTransactions.push(newTransaction);
 
-        // return the number of the block this transaction will be included in
         return this.getLastBlock()['index'] + 1;
     }
 
@@ -55,8 +56,6 @@ class Blockchain {
         }
 
         return nonce;
-        // const newBlock = this.creatteNewBlock(nonce, prevBlockHash, hash);
-        // return newBlock;
     }    
 }
 
