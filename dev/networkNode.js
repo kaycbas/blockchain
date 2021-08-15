@@ -72,14 +72,63 @@ app.get('/mine', function (req, res) {
     const nonce = bitcoin.proofOfWork(prevBlockHash, currBlockData);
     const newBlockHash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce);
 
-    bitcoin.createNewTransaction(12.5, "00", nodeAddress);
+    // bitcoin.createNewTransaction(12.5, "00", nodeAddress);
 
     const newBlock = bitcoin.createNewBlock(nonce, prevBlockHash, newBlockHash);
 
-    res.json({
-        note: "New block mined successfully",
-        block: newBlock
+    const reqPromises = [];
+    for (const networkNodeUrl of bitcoin.networkNodes) {
+        const reqOptions = {
+            uri: networkNodeUrl + '/receive-new-block',
+            method: 'POST',
+            body: { newBlock: newBlock },
+            json: true
+        };
+
+        const reqPromise = rp(reqOptions);
+        reqPromises.push(reqPromise);
+    }
+
+    Promise.all(reqPromises).then(data => {
+        const reqOptions = {
+            uri: bitcoin.currNodeUrl + '/transaction/broadcast',
+            method: 'POST',
+            body: {
+                amount: 12.5,
+                sender: '00',
+                recipient: nodeAddress
+            },
+            json: true
+        };
+
+        return rp(reqOptions);
+    }).then(data => {
+        res.json({
+            note: 'New block mined and broadcast successfully',
+            block: newBlock
+        })
     })
+})
+
+app.post('/receive-new-block', function (req, res) {
+    const newBlock = req.body.newBlock;
+    const lastBlock = bitcoin.getLastBlock();
+    const correctHash = lastBlock.hash === newBlock.prevBlockHash;
+    const correctIdx = lastBlock.index + 1 === newBlock.index;
+
+    if (correctHash && correctIdx) {
+        bitcoin.chain.push(newBlock);
+        bitcoin.pendingTransactions = [];
+        res.json({
+            note: 'New block received and accepted.',
+            newBlock: newBlock
+        })    
+    } else {
+        res.json({
+            note: 'New block rejected.',
+            newBlock: newBlock
+        })
+    }
 })
 
 // register a node and broadcast it to the network
