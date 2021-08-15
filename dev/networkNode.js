@@ -96,7 +96,7 @@ app.post('/register-and-broadcast-node', function (req, res) {
 
 // register a node with the network
 app.post('/register-node', function (req, res) {
-    const newNodeUrl = req.body.networkNodeUrl;
+    const newNodeUrl = req.body.newNodeUrl;
     const nodeNotAlreadyPresent = !bitcoin.networkNodes.includes(newNodeUrl);
     const notCurrNode = bitcoin.currNodeUrl !== newNodeUrl;
     if (nodeNotAlreadyPresent && notCurrNode) {
