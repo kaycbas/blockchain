@@ -42,7 +42,7 @@ class Blockchain {
             recipient,
             transactionId: uuid().split('-').join('')
         };
-        
+
         return newTransaction;
     }
     
@@ -67,6 +67,27 @@ class Blockchain {
         }
 
         return nonce;
+    }
+
+    chainIsValid(blockchain) {
+        let validChain = true;
+
+        for (let i = 1; i < blockchain.length; i++) {
+            const currBlock = blockchain[i];
+            const prevBlock = blockchain[i - 1];
+            const blockHash = this.hashBlock(prevBlock.hash, { transactions:  currBlock.transactions, index: currBlock.index }, currBlock.nonce)
+            if (blockHash.substr(0, 4) !== '0000') validChain = false;
+            if (currBlock.prevBlockHash !== prevBlock.hash) validChain = false;
+        }
+
+        const genesisBlock = blockchain[0];
+        const correctNonce = genesisBlock.nonce === 100;
+        const correctPrevBlockHash = genesisBlock.prevBlockHash === '0';
+        const correctHash = genesisBlock.hash === '0';
+        const correctTransactions = genesisBlock.transactions.length === 0;
+        if (!correctNonce || !correctPrevBlockHash || !correctHash || !correctTransactions) validChain = false;
+
+        return validChain;
     }
 }
 
