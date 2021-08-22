@@ -1,26 +1,26 @@
-const express = require('express')
-const bodyParser = require('body-parser')
-const Blockchain = require('./blockchain')
+const express = require('express');
+const bodyParser = require('body-parser');
+const Blockchain = require('./blockchain');
 const rp = require('request-promise');
 const {
     v1: uuid
 } = require('uuid');
 
-const app = express()
+const app = express();
 const port = process.argv[2];
 
 const nodeAddress = uuid().split('-').join('');
-const bitcoin = new Blockchain()
+const bitcoin = new Blockchain();
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: false
-}))
+}));
 
 // get entire blockchain
 app.get('/blockchain', function (req, res) {
     res.send(bitcoin)
-})
+});
 
 // create a new transaction
 app.post('/transaction', function (req, res) {
@@ -29,7 +29,7 @@ app.post('/transaction', function (req, res) {
     res.json({
         note: `Transaction will be added in block ${blockIdx}.`
     });
-})
+});
 
 // create and broadcast a new transaction
 app.post('/transaction/broadcast', function (req, res) {
@@ -57,9 +57,9 @@ app.post('/transaction/broadcast', function (req, res) {
     Promise.all(reqPromises).then(data => {
         res.json({
             note: 'Successfully created and broadcast transaction.'
-        })
+        });
     })
-})
+});
 
 // mine a block
 app.get('/mine', function (req, res) {
@@ -108,7 +108,7 @@ app.get('/mine', function (req, res) {
             block: newBlock
         })
     })
-})
+});
 
 app.post('/receive-new-block', function (req, res) {
     const newBlock = req.body.newBlock;
@@ -129,7 +129,7 @@ app.post('/receive-new-block', function (req, res) {
             newBlock: newBlock
         })
     }
-})
+});
 
 // register a node and broadcast it to the network
 app.post('/register-and-broadcast-node', function (req, res) {
@@ -169,7 +169,7 @@ app.post('/register-and-broadcast-node', function (req, res) {
             note: 'New node registered with network successfully.'
         });
     })
-})
+});
 
 // register a node with the network
 app.post('/register-node', function (req, res) {
@@ -182,7 +182,7 @@ app.post('/register-node', function (req, res) {
     res.json({
         note: 'New node registered successfully.'
     });
-})
+});
 
 // register nodes in bulk
 app.post('/register-nodes-bulk', function (req, res) {
@@ -198,7 +198,7 @@ app.post('/register-nodes-bulk', function (req, res) {
     res.json({
         note: 'Successfully bulk registered nodes.'
     })
-})
+});
 
 // 
 app.get('/consensus', function (req, res) {
@@ -242,8 +242,38 @@ app.get('/consensus', function (req, res) {
             })
         }
     })
-})
+});
+
+app.get('/block/:blockHash', function(req, res) {
+    const blockHash = req.params.blockHash;
+    const correctBlock = bitcoin.getBlock(blockHash);
+    res.json({
+        block: correctBlock
+    })
+});
+
+app.get('/transaction/:transactionId', function(req, res) {
+    const transactionId = req.params.transactionId;
+    const transactionData = bitcoin.getTransaction(transactionId);
+    res.json({
+        transaction: transactionData.transaction,
+        block: transactionData.block
+    });
+});
+
+app.get('/address/:address', function(req, res) {
+    const address = req.params.address;
+    const addressData = bitcoin.getAddressData(address);
+    res.json({
+        addressTransactions: addressData.addressTransactions,
+        addressBalance: addressData.addressBalance
+    })
+});
+
+app.get('/block-explorer', function(req, res) {
+    res.sendFile('./block_explorer/index.html');
+});
 
 app.listen(port, function () {
     console.log(`Listening on port ${port}...`);
-})
+});
