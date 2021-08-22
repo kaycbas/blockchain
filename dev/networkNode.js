@@ -72,8 +72,6 @@ app.get('/mine', function (req, res) {
     const nonce = bitcoin.proofOfWork(prevBlockHash, currBlockData);
     const newBlockHash = bitcoin.hashBlock(prevBlockHash, currBlockData, nonce);
 
-    // bitcoin.createNewTransaction(12.5, "00", nodeAddress);
-
     const newBlock = bitcoin.createNewBlock(nonce, prevBlockHash, newBlockHash);
 
     const reqPromises = [];
@@ -200,7 +198,7 @@ app.post('/register-nodes-bulk', function (req, res) {
     })
 });
 
-// 
+// consensus
 app.get('/consensus', function (req, res) {
     const reqPromises = [];
     for (const networkNodeUrl of bitcoin.networkNodes) {
@@ -244,6 +242,7 @@ app.get('/consensus', function (req, res) {
     })
 });
 
+// get block by blockHash
 app.get('/block/:blockHash', function(req, res) {
     const blockHash = req.params.blockHash;
     const correctBlock = bitcoin.getBlock(blockHash);
@@ -252,6 +251,7 @@ app.get('/block/:blockHash', function(req, res) {
     })
 });
 
+// get transaction by transactionId
 app.get('/transaction/:transactionId', function(req, res) {
     const transactionId = req.params.transactionId;
     const transactionData = bitcoin.getTransaction(transactionId);
@@ -261,15 +261,16 @@ app.get('/transaction/:transactionId', function(req, res) {
     });
 });
 
+// get address by address
 app.get('/address/:address', function(req, res) {
     const address = req.params.address;
     const addressData = bitcoin.getAddressData(address);
     res.json({
-        addressTransactions: addressData.addressTransactions,
-        addressBalance: addressData.addressBalance
+        addressData: addressData
     })
 });
 
+// get block explorer frontend
 app.get('/block-explorer', function(req, res) {
     res.sendFile('./block_explorer/index.html', { root: __dirname });
 });
